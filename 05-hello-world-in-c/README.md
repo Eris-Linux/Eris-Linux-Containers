@@ -29,14 +29,14 @@ Prepare the container using the  `create-container`  script provided with the Er
 For example:
 
 ```
-$ ./create-container  arm64  ./05-hello-world-in-c  hello-world-in-c-container
+$ ./create-container  arm64  ./05-hello-world-in-c  hello-world-in-c
 ```
 
 After a few minutes, you'll find the container in your build directory:
 
 ```
 $ ls
-  [...]  hello-world-in-c-container.tar.bz2 [...]
+  [...]  hello-world-in-c.tar.bz2 [...]
 ```
 
 Connect to your account on the [Eris Linux Device Manager](https://www.eris-linux.net).

@@ -33,14 +33,14 @@ Prepare the container using the  `create-container`  script provided with the Er
 For example:
 
 ```
-$ ./create-container  arm64  ./01-ssh-server  ssh-server-container
+$ ./create-container  arm64  ./01-ssh-server  ssh-server
 ```
 
-After a few seconds, you'll find the container in your build directory:
+After a few seconds, you'll find the container image in your build directory:
 
 ```
 $ ls
-  [...]  ssh-server-container.tar.bz2 [...]
+  [...]  ssh-server.tar.bz2 [...]
 ```
 
 Connect to your account, or create one, on the [Eris Linux Device Manager](https://www.eris-linux.net).

@@ -26,14 +26,14 @@ Prepare the container using the  `create-container`  script provided with the Er
 For example:
 
 ```
-$ ./create-container  arm64  ./02-api-test-web  api-test-web-container
+$ ./create-container  arm64  ./02-api-test-web  api-test-web
 ```
 
-After a few minutes, you'll find the container in your build directory:
+After a few minutes, you'll find the container image in your build directory:
 
 ```
 $ ls
-  [...]  api-test-web-container.tar.bz2 [...]
+  [...]  api-test-web.tar.bz2 [...]
 ```
 
 Connect to your account on the [Eris Linux Device Manager](https://www.eris-linux.net).

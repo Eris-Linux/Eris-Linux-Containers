@@ -29,14 +29,14 @@ Prepare the container using the  `create-container`  script provided with the Er
 For example:
 
 ```
-$ ./create-container  arm64  ./04-turn-leds-off  turn-leds-off-container
+$ ./create-container  arm64  ./04-turn-leds-off  turn-leds-off
 ```
 
-After a few minutes, you'll find the container in your build directory:
+After a few minutes, you'll find the container image in your build directory:
 
 ```
 $ ls
-  [...]  turn-leds-off-container.tar.bz2 [...]
+  [...]  turn-leds-off.tar.bz2 [...]
 ```
 
 Connect to your account on the [Eris Linux Device Manager](https://www.eris-linux.net).
@@ -48,7 +48,7 @@ After container upload, click on the `Setup...` button.
 Then fill in the following fields:
 
 - The `Compatible board` field with the type of board on which you'll use the container.
-- The `Privileged container` field must be checked in order to access the `/sys/` directory.
+- The `Privileged container` checkbox must be checked in order to access the `/sys/` directory.
 
 Go to `My devices` tab, select the group of devices on which you want to install the container.
 On the upper right table, click on the rightmost button of one of the rows (the button with a container icon).
