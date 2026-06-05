@@ -21,9 +21,15 @@ fi
 
 # First argument: the target architecture. Most of the time it will be 'arm', or 'arm64'.
 #
-architecture="${1}"
-if [ "${architecture}" != "arm" ] && [ "${architecture}" != "arm64" ]
+if [ "${1}" = "arm64" ] || [ "${1}" = "aarch64" ]
 then
+	buildarch="aarch64"
+	buildplatform="arm64"
+elif [ "${1}" = "arm" ]
+then
+	buildarch="arm"
+	buildplatform="arm"
+else
 	echo "$0: <architecture> must be 'arm' or 'arm64'." >&2
 	exit 1
 fi
@@ -60,7 +66,7 @@ rm -f eris-linux-container.tar eris-linux-container.sha256 eris-linux-container.
 
 # Build the image and extract it as a tar achive.
 #
-docker buildx build --platform linux/"${architecture}" --no-cache --debug --rm -t "eris-linux-image" --output type=tar,dest=eris-linux-container.tar . || exit 1
+docker buildx build --progress=plain --platform linux/"${buildplatform}" --build-arg BUILDARCH="${buildarch}" --no-cache --debug --rm -t "eris-linux-image" --output type=tar,dest=eris-linux-container.tar . || exit 1
 
 
 # Extract the "CMD" line of the Dockerfile.
