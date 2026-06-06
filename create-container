@@ -12,14 +12,14 @@
 #
 
 
-if [ $# -ne 3 ]
+if [ $# -lt 3 ]
 then
-	echo "Usage: $0 <architecture> <directory> <container-name>" >&2
+	echo "Usage: $0 <architecture> <directory> <container-name> [full-architecture]" >&2
 	exit 1
 fi
 
 
-# First argument: the target architecture.
+# First parameter: the target architecture.
 # Must be 'arm', 'arm/v7', 'arm/v8', 'arm64'.
 #
 if [ "${1}" = "arm64" ] || [ "${1}" = "aarch64" ]
@@ -40,7 +40,7 @@ else
 fi
 
 
-# Second argument: the directory containing the Dockerfile (and all other files) of the container.
+# Second parameter: the directory containing the Dockerfile (and all other files) of the container.
 #
 directory="${2}"
 if [ ! -d "${directory}" ] || [ ! -e "${directory}/Dockerfile" ]
@@ -52,13 +52,21 @@ previous_directory=$(pwd)
 cd "${directory}" || { echo "$0: unable to enter ${directory}" >&2; exit 1; }
 
 
-# Third argument: the name of the container (not really important for Eris Linux).
+# Third parameter: the name of the container (not really important for Eris Linux).
 #
 name="${3}"
 if ! echo "${name}" | grep '^[A-Za-z0-9_.+-]\+$' >/dev/null 2>&1
 then
 	echo "$0: '${name}' is not a valid container name." >&2
 	exit 1
+fi
+
+
+# Fourth parameter (optionnal): the full architecture name.
+#
+if [ $# -ge 4 ]
+then
+	fullarch="${4}"
 fi
 
 
