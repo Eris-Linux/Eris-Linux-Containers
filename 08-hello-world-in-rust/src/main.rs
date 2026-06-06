@@ -6,7 +6,7 @@ async fn std_out_hello() {
 
     loop {
         interval.tick().await;
-        println!("Hello, World (from Rust)!");
+        println!("Hello, World! (from Rust)");
     }
 }
 
@@ -26,5 +26,5 @@ async fn main() {
 }
 
 async fn handler() -> Html<&'static str> {
-    Html("<h1>Hello, World (from Rust)!</h1>")
+    Html("<h1>Hello, World! (from Rust)</h1>")
 }
