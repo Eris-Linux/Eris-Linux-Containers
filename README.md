@@ -16,7 +16,7 @@ All the content of this repository is licensed under the MIT license.
 
 ## Author
 
-Christophe BLAESS 2026
+Christophe BLAESS and Alexandre GROSSET 2026
 
 
 ## Usage
