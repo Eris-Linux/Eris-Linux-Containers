@@ -19,16 +19,21 @@ then
 fi
 
 
-# First argument: the target architecture. Most of the time it will be 'arm', or 'arm64'.
+# First argument: the target architecture.
+# Must be 'arm', 'arm/v7', 'arm/v8', 'arm64'.
 #
 if [ "${1}" = "arm64" ] || [ "${1}" = "aarch64" ]
 then
-	buildarch="aarch64"
 	buildplatform="arm64"
-elif [ "${1}" = "arm" ]
+	fullarch="aarch64-unknown-linux-musl"
+elif [ "${1}" = "arm" ] || [ "${1}" = "arm/v7" ]
 then
-	buildarch="arm"
-	buildplatform="arm"
+	buildplatform="arm/v7"
+	fullarch="armv7-unknown-linux-musleabihf"
+elif [ "${1}" = "arm/v8" ]
+then
+	buildplatform="${1}"
+	fullarch="armv8-unknown-linux-musleabihf"
 else
 	echo "$0: <architecture> must be 'arm' or 'arm64'." >&2
 	exit 1
@@ -64,14 +69,23 @@ docker image     rm -f "eris-linux-image"      2>/dev/null
 rm -f eris-linux-container.tar eris-linux-container.sha256 eris-linux-container.cmd eris-linux-container+sum.tar.bz2
 
 
-# Build the image and extract it as a tar achive.
+# Build the image and store it as a tar archive.
 #
-docker buildx build --progress=plain --platform linux/"${buildplatform}" --build-arg BUILDARCH="${buildarch}" --no-cache --debug --rm -t "eris-linux-image" --output type=tar,dest=eris-linux-container.tar . || exit 1
+docker buildx build                        \
+    --progress=plain                       \
+    --platform linux/"${buildplatform}"    \
+    --build-arg FULLARCH="${fullarch}"     \
+    --no-cache                             \
+    --debug                                \
+    --rm                                   \
+    -t "eris-linux-image"                  \
+    --output type=tar,dest=eris-linux-container.tar . || exit 1
 
 
 # Extract the "CMD" line of the Dockerfile.
 #
-sed -ne 's/^.*CMD[[:blank:]]*\[\(.*\)\]$/\1/p' Dockerfile | sed -e 's/"\([^"]*\)",\?[[:blank:]]*/\1 /g' > eris-linux-container.cmd
+sed -ne 's/^.*CMD[[:blank:]]*\[\(.*\)\]$/\1/p' Dockerfile | \
+      sed -e 's/"\([^"]*\)",\?[[:blank:]]*/\1 /g' > eris-linux-container.cmd
 
 
 # Compute the checksum of the image and the command to run.
