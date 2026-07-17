@@ -30,7 +30,7 @@ class UpdateApiWindow : public QWidget {
 		QCheckBox   *immediateContainerUpdateChk;
 		QTimer      *refreshTimer;
 
-		void reboot_needed_button_clicked(void);
+		void reboot_pending_button_clicked(void);
 		void contact_period_button_clicked(void);
 		void automatic_reboot_check_changed(void);
 		void immediate_container_update_check_changed(void);

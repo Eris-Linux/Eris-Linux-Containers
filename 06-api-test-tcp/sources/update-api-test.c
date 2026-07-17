@@ -17,8 +17,8 @@
 // ---------------------- Private method declarations.
 
 static int get_update_status           (int sockfd);
-static int get_reboot_needed_flag      (int sockfd);
-static int set_reboot_needed_flag      (int sockfd);
+static int get_reboot_pending_flag     (int sockfd);
+static int set_reboot_pending_flag     (int sockfd);
 static int get_server_contact_period   (int sockfd);
 static int set_server_contact_period   (int sockfd);
 static int contact_server_now          (int sockfd);
@@ -52,7 +52,7 @@ int update_api_test(int sockfd)
 
 		for (;;) {
 			char choice[32];
-			
+
 			sockprintf(sockfd, "\r\nYour choice: ");
 			if (sockgets(sockfd, choice, 32) == NULL)
 				break;
@@ -67,13 +67,13 @@ int update_api_test(int sockfd)
 			}
 
 			if (strcmp(choice, "2") == 0) {
-				if (get_reboot_needed_flag(sockfd) != 0)
+				if (get_reboot_pending_flag(sockfd) != 0)
 					break;
 				continue;
 			}
 
 			if (strcmp(choice, "3") == 0) {
-				if (set_reboot_needed_flag(sockfd) != 0)
+				if (set_reboot_pending_flag(sockfd) != 0)
 					break;
 				continue;
 			}
@@ -168,9 +168,9 @@ static int get_update_status(int sockfd)
 
 
 
-static int get_reboot_needed_flag(int sockfd)
+static int get_reboot_pending_flag(int sockfd)
 {
-	int ret = eris_get_reboot_needed_flag();
+	int ret = eris_get_reboot_pending_flag();
 	if (ret < 0)
 		sockprintf(sockfd, "ERROR %d\r\n", ret);
 	else if (ret == 0)
@@ -182,7 +182,7 @@ static int get_reboot_needed_flag(int sockfd)
 
 
 
-static int set_reboot_needed_flag(int sockfd)
+static int set_reboot_pending_flag(int sockfd)
 {
 	sockprintf(sockfd, "Program a reboot at next server contact ('Yes' or 'No'): ");
 	char reply[64];
@@ -190,8 +190,8 @@ static int set_reboot_needed_flag(int sockfd)
 		return -1;
 	if (reply[0] == '\0')
 		return 0;
-	
-	int ret = eris_set_reboot_needed_flag((reply[0] == 'Y') || (reply[0] == 'y'));
+
+	int ret = eris_set_reboot_pending_flag((reply[0] == 'Y') || (reply[0] == 'y'));
 	if (ret == 0)
 		sockprintf(sockfd, "Ok\r\n");
 	else

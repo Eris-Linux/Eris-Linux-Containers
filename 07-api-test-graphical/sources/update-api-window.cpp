@@ -52,7 +52,7 @@ UpdateApiWindow::UpdateApiWindow(QWidget *parent) : QWidget(parent)
 
 	rebootNeededBtn = new QPushButton("Ask for a reboot", this);
 	connect(rebootNeededBtn, &QPushButton::clicked, this, [this]() {
-		reboot_needed_button_clicked();
+		reboot_pending_button_clicked();
 	});
 	grid->addWidget(rebootNeededBtn, row, 2, 1, 2);
 
@@ -127,9 +127,9 @@ UpdateApiWindow::UpdateApiWindow(QWidget *parent) : QWidget(parent)
 }
 
 
-void UpdateApiWindow::reboot_needed_button_clicked(void)
+void UpdateApiWindow::reboot_pending_button_clicked(void)
 {
-	eris_set_reboot_needed_flag(! eris_get_reboot_needed_flag());
+	eris_set_reboot_pending_flag(! eris_get_reboot_pending_flag());
 }
 
 
@@ -213,7 +213,7 @@ void UpdateApiWindow::update_values(void)
 		break;
 	}
 
-	if (eris_get_reboot_needed_flag()) {
+	if (eris_get_reboot_pending_flag()) {
 		rebootNeededLabel->setText("A reboot has been requested by the update system,\nthe Web device manager or a container.");
 		rebootNeededBtn->setText("Refuse the reboot");
 	} else {

@@ -257,12 +257,12 @@ static int wait_for_gpio_edge(int sockfd)
 	if (event[0] == '\0')
 		return 0;
 
-	int err = eris_wait_gpio_edge(name, event);
-	if (err != 0) {
-		sockprintf(sockfd, "ERROR %d (are you sure you have requested the GPIO for input?)\r\n", err);
-		return 0;
-	}
-	sockprintf(sockfd, "Ok\r\n");
+//	int err = eris_wait_gpio_edge(name, event);
+//	if (err != 0) {
+//		sockprintf(sockfd, "ERROR %d (are you sure you have requested the GPIO for input?)\r\n", err);
+//		return 0;
+//	}
+//	sockprintf(sockfd, "Ok\r\n");
 	return 0;
 }
 
