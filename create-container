@@ -26,14 +26,17 @@ if [ "${1}" = "arm64" ] || [ "${1}" = "aarch64" ]
 then
 	buildplatform="arm64"
 	fullarch="aarch64-unknown-linux-musl"
+	qemuplatform="aarch64"
 elif [ "${1}" = "arm" ] || [ "${1}" = "arm/v7" ]
 then
 	buildplatform="arm/v7"
 	fullarch="armv7-unknown-linux-musleabihf"
+	qemuplatform="arm"
 elif [ "${1}" = "arm/v8" ]
 then
 	buildplatform="${1}"
 	fullarch="armv8-unknown-linux-musleabihf"
+	qemuplatform="arm"
 else
 	echo "$0: <architecture> must be 'arm' or 'arm64'." >&2
 	exit 1
@@ -75,6 +78,19 @@ fi
 docker container rm -f "eris-linux-container"  2>/dev/null
 docker image     rm -f "eris-linux-image"      2>/dev/null
 rm -f eris-linux-container.tar eris-linux-container.sha256 eris-linux-container.cmd eris-linux-container+sum.tar.bz2
+
+
+# Install Qemu binfmt_misc plugin.
+#
+if [ ! -f "/proc/sys/fs/binfmt_misc/qemu-${qemuplatform}" ]
+then
+	docker run --privileged --rm tonistiigi/binfmt --install ${qemuplatform}
+	if [ !  -f "/proc/sys/fs/binfmt_misc/qemu-${qemuplatform}" ]
+	then
+		echo "$0: unable to install Qemu binfmt_misc plugin '${qemuplatform}'" >&2
+		exit 1
+	fi
+fi
 
 
 # Build the image and store it as a tar archive.
