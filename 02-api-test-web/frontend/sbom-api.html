@@ -79,7 +79,7 @@
 
 		window.onload = function() { 
 			fetch_packages();
-            fetch_licenses();
+			fetch_licenses();
 		};
 
 
@@ -92,7 +92,7 @@
 
 
 		async function fetch_packages() {
-			const response = await fetch("/api/package/list", {
+			const response = await fetch("/api/sbom/package/list", {
 				method: "GET"
 			});
 			if (response.ok) {
@@ -110,7 +110,7 @@
 
 
 		async function fetch_licenses() {
-			const response = await fetch("/api/license/list", {
+			const response = await fetch("/api/sbom/license/list", {
 				method: "GET"
 			});
 			if (response.ok) {
@@ -132,14 +132,14 @@
 			if (document.getElementById('package-list').value == "")
                 return;
 
-			const resp_version = await fetch("/api/package/version?name=" + document.getElementById('package-list').value, {
+			const resp_version = await fetch("/api/sbom/package/version?name=" + document.getElementById('package-list').value, {
 				method: "GET"
 			});
 			if (! resp_version.ok)
                 return;
 			const version_text = await resp_version.text();
 
-			const resp_licenses = await fetch("/api/package/licenses?name=" + document.getElementById('package-list').value, {
+			const resp_licenses = await fetch("/api/sbom/package/licenses?name=" + document.getElementById('package-list').value, {
 				method: "GET"
 			});
 			if (! resp_licenses.ok)
@@ -159,7 +159,7 @@
             if (document.getElementById('license-list').value == "")
                 return;
 
-           const response = await fetch("/api/license/text?name=" + document.getElementById('license-list').value, {
+           const response = await fetch("/api/sbom/license/text?name=" + document.getElementById('license-list').value, {
 				method: "GET"
 			});
 			if (! response.ok)
