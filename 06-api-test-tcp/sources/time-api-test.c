@@ -47,7 +47,7 @@ int time_api_test(int sockfd)
 
 		for (;;) {
 			char choice[32];
-			
+
 			sockprintf(sockfd, "\r\nYour choice: ");
 			if (sockgets(sockfd, choice, 32) == NULL)
 				break;
@@ -127,13 +127,17 @@ int time_api_test(int sockfd)
 
 static int get_ntp_enable(int sockfd)
 {
-	char buffer[64];
-
-	int err = eris_get_ntp_enable(buffer, 64);
-	if (err == 0) {
-		sockprintf(sockfd, "NTP in use: %s\r\n", buffer);
-	} else {
+	int err;
+	switch (err = eris_get_ntp_enable()) {
+	case 0:
+		sockprintf(sockfd, "NTP not in use\r\n");
+		break;
+	case 1:
+		sockprintf(sockfd, "NTP in use\r\n");
+		break;
+	default:
 		sockprintf(sockfd, "ERROR %d\r\n", err);
+		break;
 	}
 	return 0;
 }
@@ -148,8 +152,7 @@ static int set_ntp_enable  (int sockfd)
 		return -1;
 	if (status[0] == '\0')
 		return 0;
-	
-	int err = eris_set_ntp_enable(status);
+	int err = eris_set_ntp_enable((status[0] == 'y') || (status[0] == 'Y'));
 	if (err == 0) {
 		sockprintf(sockfd, "Ok\r\n");
 	} else {

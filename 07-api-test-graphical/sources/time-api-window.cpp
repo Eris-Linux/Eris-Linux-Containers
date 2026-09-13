@@ -81,11 +81,7 @@ TimeApiWindow::TimeApiWindow(QWidget *parent) : QWidget(parent)
 	connect(commandButton, &QPushButton::clicked, this, [this]() {
 		QMessageBox::StandardButton reply;
 		reply = QMessageBox::question(this, "NTP", "Do you want to enable NTP service?", QMessageBox::Yes|QMessageBox::No);
-		if (reply == QMessageBox::Yes) {
-			eris_set_ntp_enable("yes");
-		} else {
-			eris_set_ntp_enable("no");
-		}
+		eris_set_ntp_enable(reply == QMessageBox::Yes);
 		display_ntp_status();
 	});
 
@@ -219,11 +215,7 @@ TimeApiWindow::TimeApiWindow(QWidget *parent) : QWidget(parent)
 
 void TimeApiWindow::display_ntp_status(void)
 {
-	char buffer[1024];
-	eris_get_ntp_enable(buffer, 1023);
-	buffer[1023] = '\0';
-
-	if (strcasecmp(buffer, "yes") == 0) {
+	if (eris_get_ntp_enable()) {
 		ntpEnabledLabel->setText(QString("NTP: enabled"));
 		ntpServerButton->setEnabled(true);
 		display_ntp_server();
