@@ -273,7 +273,7 @@ static int set_automatic_reboot_flag(int sockfd)
 		return -1;
 	if (reply[0] == '\0')
 		return 0;
-	
+
 	int ret = eris_set_automatic_reboot_flag((reply[0] == 'Y') || (reply[0] == 'y'));
 	if (ret == 0)
 		sockprintf(sockfd, "Ok\r\n");
@@ -306,7 +306,7 @@ static int set_container_update_policy(int sockfd)
 		return -1;
 	if (reply[0] == '\0')
 		return 0;
-	
+
 	int ret = eris_set_container_update_policy((reply[0] == '1'));
 	if (ret == 0)
 		sockprintf(sockfd, "Ok\r\n");
@@ -319,7 +319,7 @@ static int set_container_update_policy(int sockfd)
 
 static int reboot_now(int sockfd)
 {
-	int ret = eris_reboot();
+	int ret = eris_reboot_now();
 	if (ret == 0)
 		sockprintf(sockfd, "Ok\r\n");
 	else
@@ -331,14 +331,11 @@ static int reboot_now(int sockfd)
 
 static int force_rollback(int sockfd)
 {
-	/*
 	int ret = eris_rollback();
 	if (ret == 0)
 		sockprintf(sockfd, "Ok\r\n");
 	else
 		sockprintf(sockfd, "ERROR %d\r\n", ret);
-	*/
-	sockprintf(sockfd, "This feature is not implemented yet\r\n");
 	return 0;
 }
 
