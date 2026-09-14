@@ -77,9 +77,12 @@
 <script>
 
 	let current_gpio_reserved = -1;
+	let current_gpio_id = null;
+
+	let gpio_data = [];
 	
 	
-	
+
 	window.onload = function() { 
 		fetch_gpio_list();
 	};
@@ -99,50 +102,51 @@
 			method: "GET"
 		});
 		if (response.ok) {
-			response_text = await response.text();
-			const response_array = response_text.split(' ');
-			response_array.forEach(gpio => {
+			gpio_data = await response.json();
+			const gpio_list = document.getElementById("gpio-list");
+			gpio_data.forEach(gpio => {
 				const opt = document.createElement('option');
-				opt.value = gpio;
-				opt.textContent = gpio;
-				document.getElementById('gpio-list').appendChild(opt);
+				opt.value = gpio.id;
+				if (gpio.name != "_")
+					opt.textContent = `${gpio.id} (${gpio.name})`;
+				else
+					opt.textContent = `${gpio.id}`;
+				gpio_list.appendChild(opt);
+			});
+
+			gpio_list.addEventListener('change', async function(event)
+			{
+
+				const selected_id = event.target.value;
+
+				if ((current_gpio_id != null) && (current_gpio_reserved != -1)) {
+					await release_gpio(current_gpio_id);
+					current_gpio_id = null;
+				}
+
+				current_gpio_reserved = -1;
+
+				document.getElementById('direction-list').value = "-1";
+				document.getElementById('value-out-p').style = "display: none;";
+				document.getElementById('value-out-div').style = "display: none;";
+				document.getElementById('value-in-p').style = "display: none;";
+				erase_error();
+
+				if (selected_id === "") {
+					// No GPIO selected
+					current_gpio_id = null;
+					document.getElementById('gpio-direction-p').style.display = "none";
+					document.getElementById('gpio-direction-div').style.display = "none";
+				} else {
+					current_gpio_id = selected_id;
+					document.getElementById('gpio-direction-p').style.display = "flex";
+					document.getElementById('gpio-direction-div').style.display = "flex";
+				}
 			});
 		}
 	}
 	
 	
-
-	let current_gpio_name = null;
-
-
-
-	document.getElementById('gpio-list').addEventListener('change', async function(e)
-	{
-		if ((current_gpio_name != null) && (current_gpio_reserved != -1)) {
-			await release_gpio(current_gpio_name);
-			current_gpio_name = null;
-		}
-		
-		current_gpio_reserved = -1;
-		document.getElementById('direction-list').value = "-1";
-		document.getElementById('value-out-p').style = "display: none;";
-		document.getElementById('value-out-div').style = "display: none;";
-		document.getElementById('value-in-p').style = "display: none;";
-		erase_error();
-		
-		if (document.getElementById('gpio-list').value === "-1") {
-			// No GPIO selected
-			current_gpio_name = null;
-			document.getElementById('gpio-direction-p').style.display = "none";
-			document.getElementById('gpio-direction-div').style.display = "none";
-		} else {
-			current_gpio_name = document.getElementById('gpio-list').value;
-			document.getElementById('gpio-direction-p').style.display = "flex";
-			document.getElementById('gpio-direction-div').style.display = "flex";
-		}
-	});
-
-
 
 	document.getElementById('direction-list').addEventListener('change', async function(e)
 	{
@@ -152,7 +156,7 @@
 		
 		if (document.getElementById('direction-list').value === "-1") {
 			// Not reserved
-			await release_gpio(current_gpio_name);
+			await release_gpio(current_gpio_id);
 			document.getElementById('value-out-p').style = "display: none;";
 			document.getElementById('value-out-div').style = "display: none;";
 			document.getElementById('value-in-p').style = "display: none;";
@@ -160,7 +164,7 @@
 		}
 
 		if (current_gpio_reserved != -1)
-			await release_gpio(current_gpio_name);
+			await release_gpio(current_gpio_id);
 		
 		if (document.getElementById('direction-list').value === "0") {
 			// Input
@@ -188,7 +192,7 @@
 		if (document.getElementById('value-list').value === "-1") {
 			// No value selected
 			if (current_gpio_reserved != -1)
-				release_gpio(current_gpio_name);
+				release_gpio(current_gpio_id);
 			current_gpio_reserved = -1;
 			return;
 		}
@@ -234,8 +238,8 @@
 		} else {
 			value = 0;
 		}
-		const response = await fetch("/api/gpio?name=" + document.getElementById('gpio-list').value + "&direction=" + direction + "&value=" + value, {
-			method: "GET"
+		const response = await fetch("/api/gpio?id=" + document.getElementById('gpio-list').value + "&direction=" + direction + "&value=" + value, {
+			method: "POST"
 		});
 		if (! response.ok) {
 			const message = await response.text();
@@ -255,11 +259,11 @@
 
 
 
-	async function release_gpio(name)
+	async function release_gpio(id)
 	{
 		if (name == "")
 			return;
-		const response = await fetch("/api/gpio?name=" + name, {
+		const response = await fetch("/api/gpio?id=" + id, {
 			method: "DELETE"
 		});
 		if (response.ok)
@@ -278,7 +282,7 @@
 		}
 
 		if (current_gpio_reserved == 0) {
-			const response = await fetch("/api/gpio/value?name=" + document.getElementById('gpio-list').value, {
+			const response = await fetch("/api/gpio/value?id=" + document.getElementById('gpio-list').value, {
 				method: "GET"
 			});
 			if (response.ok)
@@ -296,7 +300,7 @@
 	{
 		if ((document.getElementById('gpio-list').value != "")
 		 && (current_gpio_reserved == 1)) {
-			const response = await fetch("/api/gpio/value?name=" + document.getElementById('gpio-list').value + "&value=" + value, {
+			const response = await fetch("/api/gpio/value?id=" + document.getElementById('gpio-list').value + "&value=" + value, {
 				method: "PUT"
 			});
 			if (!response.ok)
@@ -313,8 +317,8 @@
 			display_timer = null;
 		}
 
-		if ((current_gpio_name != null) && (current_gpio_reserved != -1))
-			release_gpio(current_gpio_name);
+		if ((current_gpio_id != null) && (current_gpio_reserved != -1))
+			release_gpio(current_gpio_id);
 		current_gpio_name = null;
 	};
 		

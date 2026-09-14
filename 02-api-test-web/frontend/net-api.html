@@ -317,21 +317,17 @@
 			return;
 		}
 		const words = message.split(" ");
-		if (words[1] === "ipv6") {
-			document.getElementById('ipv-list').value = "ipv6";
-		} else {
-			document.getElementById('ipv-list').value = "ipv4";
-		}
-		if (words[2] === "atboot") {
+		if (words[1] === "atboot") {
 			document.getElementById('atboot-list').value = "atboot";
 		} else {
 			document.getElementById('atboot-list').value = "ondemand";
 		}
-		if (words[3] === "dhcp") {
+		if (words[2] === "dhcp") {
 			document.getElementById('mode-list').value = "dhcp";
 			show_static_fields(false);
 		} else {
 			document.getElementById('mode-list').value = "static";
+			document.getElementById('ipv-list').value     = words[3];
 			document.getElementById('address-text').value = words[4];
 			document.getElementById('netmask-text').value = words[5];
 			document.getElementById('gateway-text').value = words[6];
