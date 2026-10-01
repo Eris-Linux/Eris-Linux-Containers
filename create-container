@@ -6,20 +6,60 @@
 # directory containing at least a `Dockerfile` and most of the time
 # some source code and build file (such as `Makefile` for instance).
 #
+# A container image is a tarball (temporary named `eris-linux-container+sum.tar.bz2`)
+# containing one of the two set of files.
+#
+# For a compact container image:
+#
+# - `eris-linux-container.tar`: the rootfs of the image, to use with `docker import`,
+# - `eris-linux-container.cmd`: the command to run,
+# - `eris-linux-container.sha256`: the checksum of the two previous files.
+#
+# For a full container image:
+#
+# - `eris-linux-containter.dkr`: the full image to use with `docker load`,
+# - `eris-linux-container.sha256`: the checksum of the full image.
+#
+#
 # License: MIT
 #
 # Christophe BLAESS 2026.
 #
 
 
+# Read the options.
+#
+
+IMAGE_TYPE="dkr"
+
+while [ "$1" != "" ]
+do
+	if [ "$1" = "-c" ] || [ "$1" = "--compact" ]
+	then
+		IMAGE_TYPE="tar"
+		shift
+		continue
+	fi
+	if [ "$1" = "-f" ] || [ "$1" = "--full" ]
+	then
+		IMAGE_TYPE="dkr"
+		shift
+		continue
+	fi
+	break
+done
+
+
 if [ $# -lt 3 ]
 then
-	echo "Usage: $0 <architecture> <directory> <container-name> [full-architecture]" >&2
+	echo "Usage: $0 [<options>] <architecture> <directory> <container-name> [full-architecture]" >&2
+	echo " Options: -c --compact  produce a rootfs + command file `.tar` archive." >&2
+	echo "          -f --full     produce a full `.dkr` docker image." >&2
 	exit 1
 fi
 
 
-# First parameter: the target architecture.
+# First mandatory parameter: the target architecture.
 # Must be 'arm', 'arm/v7', 'arm/v8', 'arm64'.
 #
 if [ "${1}" = "arm64" ] || [ "${1}" = "aarch64" ]
@@ -43,7 +83,7 @@ else
 fi
 
 
-# Second parameter: the directory containing the Dockerfile (and all other files) of the container.
+# Second mandatory parameter: the directory containing the Dockerfile (and all other files) of the container.
 #
 directory="${2}"
 if [ ! -d "${directory}" ] || [ ! -e "${directory}/Dockerfile" ]
@@ -55,7 +95,7 @@ previous_directory=$(pwd)
 cd "${directory}" || { echo "$0: unable to enter ${directory}" >&2; exit 1; }
 
 
-# Third parameter: the name of the container (not really important for Eris Linux).
+# Third mandatory parameter: the name of the container (not really important for Eris Linux).
 #
 name="${3}"
 if ! echo "${name}" | grep '^[A-Za-z0-9_.+-]\+$' >/dev/null 2>&1
@@ -65,7 +105,7 @@ then
 fi
 
 
-# Fourth parameter (optionnal): the full architecture name.
+# Fourth (optional) parameter: the full architecture name.
 #
 if [ $# -ge 4 ]
 then
@@ -76,8 +116,8 @@ fi
 # Remove previous Eris Linux container and image.
 #
 docker container rm -f "eris-linux-container"  2>/dev/null
-docker image     rm -f "eris-linux-image"      2>/dev/null
-rm -f eris-linux-container.tar eris-linux-container.sha256 eris-linux-container.cmd eris-linux-container+sum.tar.bz2
+docker image     rm -f "eris-container-image"  2>/dev/null
+rm -f eris-linux-container.tar eris-linux-containter.dkr eris-linux-container.sha256 eris-linux-container.cmd eris-linux-container+sum.tar.bz2
 
 
 # Install Qemu binfmt_misc plugin.
@@ -95,37 +135,51 @@ fi
 
 # Build the image and store it as a tar archive.
 #
+case "${IMAGE_TYPE}" in
+	"dkr") output=type=docker,dest=eris-linux-container.dkr ;;
+	   * ) output=type=tar,dest=eris-linux-container.tar ;;
+esac
+
 docker buildx build                        \
     --progress=plain                       \
-    --platform linux/"${buildplatform}"    \
+    --platform  linux/"${buildplatform}"   \
     --build-arg FULLARCH="${fullarch}"     \
     --no-cache                             \
     --debug                                \
     --rm                                   \
-    -t "eris-linux-image"                  \
-    --output type=tar,dest=eris-linux-container.tar . || exit 1
+    -t "eris-container-image"              \
+    --output ${output} . || exit 1
 
 
-# Extract the "CMD" line of the Dockerfile.
+# Extract the "CMD" line of the Dockerfile for rootfs only image.
 #
-sed -ne 's/^.*CMD[[:blank:]]*\[\(.*\)\]$/\1/p' Dockerfile | \
-      sed -e 's/"\([^"]*\)",\?[[:blank:]]*/\1 /g' > eris-linux-container.cmd
+if [ "${IMAGE_TYPE}" = "tar" ]
+then
+	sed -ne 's/^.*CMD[[:blank:]]*\[\(.*\)\]$/\1/p' Dockerfile | \
+	      sed -e 's/"\([^"]*\)",\?[[:blank:]]*/\1 /g' > eris-linux-container.cmd
+fi
 
 
-# Compute the checksum of the image and the command to run.
+# Compute the checksum of the image (and the command to run if needed).
 #
-sha256sum eris-linux-container.tar eris-linux-container.cmd > eris-linux-container.sha256
+case "${IMAGE_TYPE}" in
+	"dkr" ) sha256sum eris-linux-container.dkr > eris-linux-container.sha256 ;;
+	   *  ) sha256sum eris-linux-container.tar eris-linux-container.cmd > eris-linux-container.sha256
+esac
 
 
-# Gather the container, the command and the checksum in a tar archive.
+# Gather the container, (the command if needed) and the checksum in a tar archive.
 #
-tar -cjf eris-linux-container+sum.tar.bz2  eris-linux-container.tar eris-linux-container.cmd eris-linux-container.sha256 || exit 1
+case "${IMAGE_TYPE}" in
+	"dkr" ) tar -cjf eris-linux-container+sum.tar.bz2  eris-linux-container.dkr eris-linux-container.sha256 || exit 1 ;;
+	   *  ) tar -cjf eris-linux-container+sum.tar.bz2  eris-linux-container.tar eris-linux-container.cmd eris-linux-container.sha256 || exit 1 ;;
+esac
 
 
 # Move the producted image and erase the temporary files.
 #
 mv "eris-linux-container+sum.tar.bz2" "${previous_directory}/${name}.tar.bz2"
-rm -f eris-linux-container.tar eris-linux-container.sha256 eris-linux-container.cmd eris-linux-container+sum.tar.bz2
+rm -f eris-linux-container.${IMAGE_TYPE} eris-linux-container.sha256 eris-linux-container.cmd eris-linux-container+sum.tar.bz2
 cd -
 
 exit 0
