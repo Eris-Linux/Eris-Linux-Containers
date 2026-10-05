@@ -53,8 +53,8 @@ done
 if [ $# -lt 3 ]
 then
 	echo "Usage: $0 [<options>] <architecture> <directory> <container-name> [full-architecture]" >&2
-	echo " Options: -c --compact  produce a rootfs + command file `.tar` archive." >&2
-	echo "          -f --full     produce a full `.dkr` docker image." >&2
+	echo ' Options: -c --compact  produce a rootfs + command file `.tar` archive.' >&2
+	echo '          -f --full     produce a full `.dkr` docker image.' >&2
 	exit 1
 fi
 
@@ -117,7 +117,7 @@ fi
 #
 docker container rm -f "eris-linux-container"  2>/dev/null
 docker image     rm -f "eris-container-image"  2>/dev/null
-rm -f eris-linux-container.tar eris-linux-containter.dkr eris-linux-container.sha256 eris-linux-container.cmd eris-linux-container+sum.tar.bz2
+rm -f eris-linux-container.tar eris-linux-container.dkr eris-linux-container.sha256 eris-linux-container.cmd eris-linux-container+sum.tar.bz2
 
 
 # Install Qemu binfmt_misc plugin.
@@ -163,8 +163,8 @@ fi
 # Compute the checksum of the image (and the command to run if needed).
 #
 case "${IMAGE_TYPE}" in
-	"dkr" ) sha256sum eris-linux-container.dkr > eris-linux-container.sha256 ;;
-	   *  ) sha256sum eris-linux-container.tar eris-linux-container.cmd > eris-linux-container.sha256
+	"dkr" ) sha256sum eris-linux-container.dkr > eris-linux-container.sha256 || exit 1 ;;
+	   *  ) sha256sum eris-linux-container.tar eris-linux-container.cmd > eris-linux-container.sha256 || exit 1
 esac
 
 
@@ -178,7 +178,7 @@ esac
 
 # Move the producted image and erase the temporary files.
 #
-mv "eris-linux-container+sum.tar.bz2" "${previous_directory}/${name}.tar.bz2"
+mv "eris-linux-container+sum.tar.bz2" "${previous_directory}/${name}.tar.bz2" || exit 1
 rm -f eris-linux-container.${IMAGE_TYPE} eris-linux-container.sha256 eris-linux-container.cmd eris-linux-container+sum.tar.bz2
 cd -
 
