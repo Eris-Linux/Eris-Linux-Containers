@@ -13,4 +13,8 @@ do
 	then
 		echo "none" > "${led}/trigger"
 	fi
+	if [ -f "${led}/brightness" ]
+	then
+		echo 0 > "${led}/brightness"
+	fi
 done
