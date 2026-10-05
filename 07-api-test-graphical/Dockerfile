@@ -71,5 +71,6 @@ RUN apk add --no-cache qt6-qtbase-x11 qt6-qtdeclarative fontconfig  ttf-dejavu
 #
 COPY --from=build /src/graphic-api-test /graphic-api-test
 COPY --from=build /src/api-test.qss /api-test.qss
+COPY --from=build /src/logo.png /logo.png
 
 CMD ["/graphic-api-test"]
