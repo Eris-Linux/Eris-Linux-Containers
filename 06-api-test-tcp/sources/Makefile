@@ -11,18 +11,10 @@ OBJS =               \
   update-api-test.o  \
   wdog-api-test.o    \
 
-INC = liberis.h      \
-  eris-api-test.h    \
-  gpio-api-test.h    \
-  network-api-test.h \
-  sbom-api-test.h    \
-  system-api-test.h  \
-  time-api-test.h    \
-  update-api-test.h  \
-  wdog-api-test.h    \
+INC = $(wildcard include/*.h)
 
-CFLAGS  += -Wall -g -I include/
-LDLIBS  += -leris -lcurl
+CFLAGS  += -Wall -g -I include/ -pthread
+LDLIBS  += -leris -lcurl -pthread
 
 all: $(APP)
 

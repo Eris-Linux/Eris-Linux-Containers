@@ -43,7 +43,7 @@ WORKDIR /src
 
 # Copy the application source and include files.
 #
-COPY sources/* .
+COPY sources/ .
 
 # Build the application.
 #

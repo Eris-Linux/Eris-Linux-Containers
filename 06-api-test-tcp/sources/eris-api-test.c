@@ -65,9 +65,11 @@ int main(void)
 	while ((client_sock = accept(server_sock, NULL, 0)) != -1) {
 		pthread_t client_thread;
 		unsigned long int  arg = (unsigned long int) client_sock;
-		if (pthread_create(&client_thread, NULL, thread_function, (void*)arg) < 0) {
-			perror("pthread_create");
-			exit(EXIT_FAILURE);
+		int error = pthread_create(&client_thread, NULL, thread_function, (void*)arg);
+		if (error != 0) {
+			fprintf(stderr, "pthread_create: %s\n", strerror(error));
+			close(client_sock);
+			continue;
 		}
 		pthread_detach(client_thread);
 	}
