@@ -33,7 +33,7 @@ RUN chmod +x /start.sh
 #
 # Note that the port is actually made reachable from outside the
 # container by the container configuration:
-# Device Manager -> `My containers` -> `Setup` -> `Exported Ports` -> `22:22/tcp`
+# Device Manager -> `My containers` -> `Setup` -> `Exported Ports` -> `80:80/tcp`
 #
 EXPOSE 80
 
