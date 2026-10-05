@@ -33,7 +33,7 @@ After a few minutes, you'll find the container image in your build directory:
 
 ```
 $ ls
-  [...]  hello-world-in-python   [...]
+  [...]  hello-world-in-python.tar.bz2   [...]
 ```
 
 Connect to your account on the [Eris Linux Device Manager](https://www.eris-linux.net).
