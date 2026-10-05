@@ -46,6 +46,7 @@ You may enter a password if you want to encrypt the container before it is store
 
 After container upload, click on the `Setup...` button.
 Then fill in the `Compatible board` field with the type of board on which you'll use the container.
+Set the `Exported Ports` field to `3000:3000/tcp` to access the web page.
 
 Go to `My devices` tab, select the group of devices on which you want to install the container.
 On the upper right table, click on the rightmost button of one of the rows (the button with a container icon).
